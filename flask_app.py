@@ -7,7 +7,13 @@ from fuzzywuzzy import fuzz
 from scipy.spatial.distance import cdist
 import csv
 import ast
+import json
+import time
 
+with open('secret_key.txt', 'r') as f:
+    secret_key = f.read().strip()
+
+openai.api_key = secret_key
 
 def get_embedding(text, model="text-embedding-ada-002"):
    text = text.replace("\n", " ")
@@ -31,7 +37,9 @@ messages = [
 
 #### One time activity to save embeddings ####
 
-mental_health_words = ['anxiety', 'depression', 'stress', 'panic', 'trauma', 'therapy', 
+mental_health_words = ['Relationships','Health mental','Life Choices','Career pressure','Work pressure', 'Loss/Grief',
+                       'Family/Friends problems','Self Growth','Kids/Parenting problems',
+    'anxiety', 'depression', 'stress', 'panic', 'trauma', 'therapy', 
                        'medication', 'psychologist', 'psychiatrist', 'counseling', 'mental illness', 
                        'bipolar', 'suicide', 'obsessive-compulsive disorder', 'PTSD', 'phobia', 'addiction', 
                        'compulsive behavior', 'schizophrenia', 'mania', 'delusion', 'paranoia', 'psychosis', 
@@ -57,21 +65,26 @@ mental_health_words = ['anxiety', 'depression', 'stress', 'panic', 'trauma', 'th
                                  'mindfulness', 'meditation', 'breathing exercises', 'yoga', 'exercise',
                                    'nutrition', 'self-care', 'relaxation techniques']
 
+get_embebedding_again = True
+if(get_embebedding_again):
 
-#mental_health_embeddings = [get_embedding(i) for i in mental_health_words]
-##
-#
-#mental_health_embeddings_dict = {}
-#
-#for i, j  in enumerate(mental_health_words):
-#    mental_health_embeddings_dict[mental_health_words[i]] = get_embedding(j)#
+    mental_health_embeddings_dict = {}
 
-                 
+    counter = 1
+    for i, j  in enumerate(mental_health_words):
+        if(counter % 20 == 0):
+            time.sleep(20) #For adhering to request limit 
+        counter += 1
+        #print(counter)
+        mental_health_embeddings_dict[mental_health_words[i]] = get_embedding(j) 
 
-#with open("data/embeddings_mental_health_words.csv", "w", newline="") as csv_file:
-#    writer = csv.writer(csv_file)
-#    for key, value in mental_health_embeddings_dict.items():
-#        writer.writerow([key, value])
+    with open('data/mental_health_embeddings_dict.json', 'w') as fp:
+        json.dump(mental_health_embeddings_dict, fp)             
+
+    with open("data/embeddings_mental_health_words.csv", "w", newline="") as csv_file:
+        writer = csv.writer(csv_file)
+        for key, value in mental_health_embeddings_dict.items():
+            writer.writerow([key, value])
 
 ################################ 
 
@@ -93,6 +106,9 @@ with open('data/embeddings_mental_health_words.csv', mode='r') as file:
 
         # add the key-value pair to the dictionary
         mental_health_embeddings_dict[key] = value
+
+with open('mental_health_embeddings_dict.json', 'w') as f:
+    json.dump(mental_health_embeddings_dict, f)
  
 
 
@@ -138,5 +154,5 @@ def prompt():
     return reply, 200
 
 if __name__ == '__main__':
-    #app.run(debug=True)
-    app.run(host= '0.0.0.0', port=5000)
+    app.run(debug=True)
+    #app.run(host= '0.0.0.0', port=5000)
