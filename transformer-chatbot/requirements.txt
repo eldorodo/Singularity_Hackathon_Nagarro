@@ -1,0 +1,10 @@
+# python==3.9.0
+PyYAML==5.4
+tensorflow==2.9.3 
+#selenium==3.141.0 
+anytree==2.8.0
+numpy==1.22.0
+#tensorflow-datasets==3.1.0 
+tensorflow-datasets==4.8.3
+#beautifulsoup4==4.9.1
+praw==7.0.0
